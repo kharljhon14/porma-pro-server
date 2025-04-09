@@ -1,0 +1,41 @@
+# Binaries
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+
+# Build directories
+/bin/
+/build/
+
+# Go workspace stuff
+/vendor/
+/dist/
+
+# Go module cache
+/pkg/mod/
+/go.sum
+
+# IDE/editor stuff
+.vscode/
+.idea/
+*.swp
+*.swo
+*.DS_Store
+
+# Logs
+*.log
+
+# Dependency directories (if you vendor them)
+vendor/
+
+# OS junk files
+Thumbs.db
+ehthumbs.db
+
+# dotenv / config files
+.env
+.env.*
