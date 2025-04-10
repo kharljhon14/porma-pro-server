@@ -7,15 +7,17 @@ import (
 
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/kharljhon14/porma-pro-server/cmd/api"
+	db "github.com/kharljhon14/porma-pro-server/internal/db/sqlc"
 )
 
 func main() {
-	_, err := pgxpool.New(context.Background(), os.Getenv("DSN"))
+	connPool, err := pgxpool.New(context.Background(), os.Getenv("DSN"))
 	if err != nil {
 		log.Fatal("cannot connect to DB: ", err)
 	}
 
-	server, err := api.NewServer()
+	store := db.NewStore(connPool)
+	server, err := api.NewServer(store)
 	if err != nil {
 		log.Fatal("cannot create new server: ", err)
 	}

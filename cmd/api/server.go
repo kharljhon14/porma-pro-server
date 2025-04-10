@@ -1,13 +1,19 @@
 package api
 
-import "github.com/gin-gonic/gin"
+import (
+	"github.com/gin-gonic/gin"
+	db "github.com/kharljhon14/porma-pro-server/internal/db/sqlc"
+)
 
 type Server struct {
+	store  db.Store
 	router *gin.Engine
 }
 
-func NewServer() (*Server, error) {
-	server := &Server{}
+func NewServer(store db.Store) (*Server, error) {
+	server := &Server{
+		store: store,
+	}
 
 	server.mountRoutes()
 
