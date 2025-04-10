@@ -39,3 +39,4 @@ ehthumbs.db
 # dotenv / config files
 .env
 .env.*
+.envrc
