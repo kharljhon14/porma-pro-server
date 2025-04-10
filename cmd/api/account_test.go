@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/golang/mock/gomock"
+	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/jackc/pgx/v5/pgtype"
 	mock_sqlc "github.com/kharljhon14/porma-pro-server/internal/db/mock"
 	db "github.com/kharljhon14/porma-pro-server/internal/db/sqlc"
@@ -96,6 +97,27 @@ func TestCreateAccountAPI(t *testing.T) {
 			},
 			checkResponse: func(t *testing.T, recoder *httptest.ResponseRecorder) {
 				require.Equal(t, http.StatusInternalServerError, recoder.Code)
+			},
+		},
+		{
+			name: "Forbidden",
+			args: createAccountRequest{
+				Email:    "enriquezkharl14@gmail.com",
+				Password: "@paswword123",
+				FullName: "Kharl Curz",
+			},
+			buildStubs: func(store *mock_sqlc.MockStore) {
+				store.
+					EXPECT().
+					CreateAccount(gomock.Any(), gomock.Any()).
+					Times(1).
+					Return(db.Account{}, &pgconn.PgError{
+						Code:           "23505",
+						ConstraintName: "accounts_email_key",
+					})
+			},
+			checkResponse: func(t *testing.T, recoder *httptest.ResponseRecorder) {
+				require.Equal(t, http.StatusForbidden, recoder.Code)
 			},
 		},
 	}
