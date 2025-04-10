@@ -13,6 +13,10 @@ func init() {
 	rand.NewSource(time.Now().UnixNano())
 }
 
+func RandomgInt(min, max int64) int64 {
+	return min + rand.Int63n(max-min+1)
+}
+
 func RandomString(n int) string {
 	var sb strings.Builder
 
