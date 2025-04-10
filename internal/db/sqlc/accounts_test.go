@@ -7,6 +7,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/kharljhon14/porma-pro-server/internal/util"
 	"github.com/stretchr/testify/require"
 )
@@ -51,6 +52,27 @@ func TestGetAccount(t *testing.T) {
 	require.Equal(t, account.Email, account2.Email)
 	require.Equal(t, account.PasswordHash, account2.PasswordHash)
 	require.WithinDuration(t, account.CreatedAt.Time, account2.CreatedAt.Time, time.Second)
+}
+
+func TestUpdateAccont(t *testing.T) {
+	account := createTestAccount(t)
+
+	args := UpdateAccountParams{
+		FullName:   util.RandomString(12),
+		IsVerified: true,
+		UpdatedAt: pgtype.Timestamp{
+			Time:  time.Now().UTC(),
+			Valid: true,
+		},
+		ID: account.ID,
+	}
+	account2, err := testStore.UpdateAccount(context.Background(), args)
+	require.NoError(t, err)
+	require.NotEmpty(t, account2)
+
+	require.Equal(t, args.FullName, account2.FullName)
+	require.Equal(t, args.IsVerified, account2.IsVerified)
+	require.WithinDuration(t, args.UpdatedAt.Time, account2.UpdatedAt.Time, time.Second)
 }
 
 func TestDeleteAccount(t *testing.T) {
