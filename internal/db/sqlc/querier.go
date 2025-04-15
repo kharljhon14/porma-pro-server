@@ -13,6 +13,7 @@ type Querier interface {
 	DeleteAccount(ctx context.Context, id int64) error
 	GetAccount(ctx context.Context, id int64) (Account, error)
 	UpdateAccount(ctx context.Context, arg UpdateAccountParams) (Account, error)
+	VerifyAccount(ctx context.Context, id int64) (Account, error)
 }
 
 var _ Querier = (*Queries)(nil)

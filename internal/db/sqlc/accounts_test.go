@@ -58,8 +58,7 @@ func TestUpdateAccont(t *testing.T) {
 	account := createTestAccount(t)
 
 	args := UpdateAccountParams{
-		FullName:   util.RandomString(12),
-		IsVerified: true,
+		FullName: util.RandomString(12),
 		UpdatedAt: pgtype.Timestamp{
 			Time:  time.Now().UTC(),
 			Valid: true,
@@ -71,8 +70,16 @@ func TestUpdateAccont(t *testing.T) {
 	require.NotEmpty(t, account2)
 
 	require.Equal(t, args.FullName, account2.FullName)
-	require.Equal(t, args.IsVerified, account2.IsVerified)
 	require.WithinDuration(t, args.UpdatedAt.Time, account2.UpdatedAt.Time, time.Second)
+}
+
+func TestVeifyAccount(t *testing.T) {
+	account := createTestAccount(t)
+
+	account2, err := testStore.VerifyAccount(context.Background(), account.ID)
+	require.NoError(t, err)
+
+	require.Equal(t, true, account2.IsVerified)
 }
 
 func TestDeleteAccount(t *testing.T) {

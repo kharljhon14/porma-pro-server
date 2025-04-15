@@ -75,26 +75,41 @@ func (q *Queries) GetAccount(ctx context.Context, id int64) (Account, error) {
 const updateAccount = `-- name: UpdateAccount :one
 UPDATE accounts
 SET full_name = $1,
-    is_verified = $2,
-    updated_at = $3
-WHERE id = $4
+    updated_at = $2
+WHERE id = $3
 RETURNING id, email, password_hash, full_name, created_at, updated_at, is_verified
 `
 
 type UpdateAccountParams struct {
-	FullName   string           `json:"full_name"`
-	IsVerified bool             `json:"is_verified"`
-	UpdatedAt  pgtype.Timestamp `json:"updated_at"`
-	ID         int64            `json:"id"`
+	FullName  string           `json:"full_name"`
+	UpdatedAt pgtype.Timestamp `json:"updated_at"`
+	ID        int64            `json:"id"`
 }
 
 func (q *Queries) UpdateAccount(ctx context.Context, arg UpdateAccountParams) (Account, error) {
-	row := q.db.QueryRow(ctx, updateAccount,
-		arg.FullName,
-		arg.IsVerified,
-		arg.UpdatedAt,
-		arg.ID,
+	row := q.db.QueryRow(ctx, updateAccount, arg.FullName, arg.UpdatedAt, arg.ID)
+	var i Account
+	err := row.Scan(
+		&i.ID,
+		&i.Email,
+		&i.PasswordHash,
+		&i.FullName,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.IsVerified,
 	)
+	return i, err
+}
+
+const verifyAccount = `-- name: VerifyAccount :one
+UPDATE accounts
+SET is_verified = true
+WHERE id = $1
+RETURNING id, email, password_hash, full_name, created_at, updated_at, is_verified
+`
+
+func (q *Queries) VerifyAccount(ctx context.Context, id int64) (Account, error) {
+	row := q.db.QueryRow(ctx, verifyAccount, id)
 	var i Account
 	err := row.Scan(
 		&i.ID,

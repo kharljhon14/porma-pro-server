@@ -27,7 +27,7 @@ func (s *Server) mountRoutes() {
 
 	router.POST("/sign-up", s.createAccountHandler)
 	router.GET("/accounts/:id", s.getAccountHandler)
-
+	router.POST("/verify", s.verifyAccountHandler)
 	s.router = router
 }
 

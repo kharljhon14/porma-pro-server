@@ -13,9 +13,14 @@ WHERE id = $1;
 -- name: UpdateAccount :one
 UPDATE accounts
 SET full_name = $1,
-    is_verified = $2,
-    updated_at = $3
-WHERE id = $4
+    updated_at = $2
+WHERE id = $3
+RETURNING *;
+
+-- name: VerifyAccount :one
+UPDATE accounts
+SET is_verified = true
+WHERE id = $1
 RETURNING *;
 
 -- name: DeleteAccount :exec

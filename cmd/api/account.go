@@ -85,3 +85,30 @@ func (s *Server) getAccountHandler(ctx *gin.Context) {
 
 	ctx.JSON(http.StatusOK, account)
 }
+
+type verifyAccountRequest struct {
+	ID int64 `uri:"id" binding:"required,min=1"`
+}
+
+func (s *Server) verifyAccountHandler(ctx *gin.Context) {
+	var req verifyAccountRequest
+
+	err := ctx.ShouldBindUri(&req)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		return
+	}
+
+	account, err := s.store.VerifyAccount(ctx, req.ID)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			ctx.JSON(http.StatusNotFound, errorResponse(err))
+			return
+		}
+
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
+	}
+
+	ctx.JSON(http.StatusOK, account)
+}
