@@ -4,10 +4,11 @@ go 1.24.0
 
 require (
 	github.com/gin-gonic/gin v1.10.0
+	github.com/golang-jwt/jwt v3.2.2+incompatible
 	github.com/golang/mock v1.6.0
+	github.com/google/uuid v1.6.0
 	github.com/jackc/pgx/v5 v5.7.4
 	github.com/stretchr/testify v1.10.0
-	go.uber.org/mock v0.5.1
 	golang.org/x/crypto v0.37.0
 )
 
