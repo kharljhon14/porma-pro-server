@@ -266,3 +266,126 @@ func TestGetAccountAPI(t *testing.T) {
 		})
 	}
 }
+
+func TestVerifyAccountAPI(t *testing.T) {
+	hashed_password, err := util.HashedPassword("@Password123")
+	require.NoError(t, err)
+
+	account := db.Account{
+		ID:           util.RandomgInt(1, 1000),
+		Email:        util.RandomEmail(),
+		PasswordHash: hashed_password,
+		FullName:     util.RandomString(12),
+		CreatedAt: pgtype.Timestamp{
+			Time:  time.Now().UTC(),
+			Valid: true,
+		},
+		UpdatedAt: pgtype.Timestamp{
+			Time:  time.Now().UTC(),
+			Valid: true,
+		},
+		IsVerified: false,
+	}
+
+	testCases := []struct {
+		name          string
+		accountID     int64
+		buildStuds    func(store *mock_sqlc.MockStore)
+		checkResponse func(t *testing.T, recorder httptest.ResponseRecorder)
+	}{
+		{
+			name:      "Ok",
+			accountID: account.ID,
+			buildStuds: func(store *mock_sqlc.MockStore) {
+				store.EXPECT().
+					VerifyAccount(gomock.Any(), gomock.Eq(account.ID)).
+					Times(1).
+					Return(db.Account{
+						ID:           account.ID,
+						Email:        account.Email,
+						PasswordHash: hashed_password,
+						FullName:     account.FullName,
+						CreatedAt:    account.CreatedAt,
+						UpdatedAt:    account.UpdatedAt,
+						IsVerified:   true,
+					}, nil)
+			},
+			checkResponse: func(t *testing.T, recorder httptest.ResponseRecorder) {
+				require.Equal(t, http.StatusOK, recorder.Code)
+
+				data, err := io.ReadAll(recorder.Body)
+				require.NoError(t, err)
+
+				var gotAccount db.Account
+				err = json.Unmarshal(data, &gotAccount)
+				require.NoError(t, err)
+
+				require.Equal(t, true, gotAccount.IsVerified)
+			},
+		},
+		{
+			name:      "BadRequest",
+			accountID: 0,
+			buildStuds: func(store *mock_sqlc.MockStore) {
+				store.
+					EXPECT().
+					VerifyAccount(gomock.Any(), gomock.Any()).
+					Times(0)
+			},
+			checkResponse: func(t *testing.T, recorder httptest.ResponseRecorder) {
+				require.Equal(t, http.StatusBadRequest, recorder.Code)
+			},
+		},
+		{
+			name:      "NotFound",
+			accountID: account.ID,
+			buildStuds: func(store *mock_sqlc.MockStore) {
+				store.
+					EXPECT().
+					VerifyAccount(gomock.Any(), gomock.Eq(account.ID)).
+					Times(1).
+					Return(db.Account{}, sql.ErrNoRows)
+			},
+			checkResponse: func(t *testing.T, recorder httptest.ResponseRecorder) {
+				require.Equal(t, http.StatusNotFound, recorder.Code)
+			},
+		},
+		{
+			name:      "InternalError",
+			accountID: account.ID,
+			buildStuds: func(store *mock_sqlc.MockStore) {
+				store.
+					EXPECT().
+					VerifyAccount(gomock.Any(), gomock.Eq(account.ID)).
+					Times(1).
+					Return(db.Account{}, sql.ErrConnDone)
+			},
+			checkResponse: func(t *testing.T, recorder httptest.ResponseRecorder) {
+				require.Equal(t, http.StatusInternalServerError, recorder.Code)
+			},
+		},
+	}
+
+	for i := range testCases {
+		tc := testCases[i]
+
+		t.Run(tc.name, func(t *testing.T) {
+			ctrl := gomock.NewController(t)
+			defer ctrl.Finish()
+
+			store := mock_sqlc.NewMockStore(ctrl)
+			tc.buildStuds(store)
+
+			server := newTestingServer(t, store)
+			recorder := httptest.NewRecorder()
+
+			url := fmt.Sprintf("/verify/%d", tc.accountID)
+			req, err := http.NewRequest(http.MethodPost, url, nil)
+			require.NoError(t, err)
+
+			server.router.ServeHTTP(recorder, req)
+
+			tc.checkResponse(t, *recorder)
+		})
+	}
+}
