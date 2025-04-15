@@ -54,6 +54,19 @@ func TestGetAccount(t *testing.T) {
 	require.WithinDuration(t, account.CreatedAt.Time, account2.CreatedAt.Time, time.Second)
 }
 
+func TestGetAccountByEmail(t *testing.T) {
+	account := createTestAccount(t)
+
+	account2, err := testStore.GetAccountByEmail(context.Background(), account.Email)
+	require.NoError(t, err)
+	require.NotEmpty(t, account2)
+
+	require.Equal(t, account.FullName, account2.FullName)
+	require.Equal(t, account.Email, account2.Email)
+	require.Equal(t, account.PasswordHash, account2.PasswordHash)
+	require.WithinDuration(t, account.CreatedAt.Time, account2.CreatedAt.Time, time.Second)
+}
+
 func TestUpdateAccont(t *testing.T) {
 	account := createTestAccount(t)
 
