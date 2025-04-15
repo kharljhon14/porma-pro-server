@@ -13,7 +13,7 @@ import (
 	context "context"
 	reflect "reflect"
 
-	db "github.com/kharljhon14/porma-pro-server/internal/db/sqlc"
+	sqlc "github.com/kharljhon14/porma-pro-server/internal/db/sqlc"
 	gomock "github.com/golang/mock/gomock"
 )
 
@@ -42,10 +42,10 @@ func (m *MockStore) EXPECT() *MockStoreMockRecorder {
 }
 
 // CreateAccount mocks base method.
-func (m *MockStore) CreateAccount(ctx context.Context, arg db.CreateAccountParams) (db.Account, error) {
+func (m *MockStore) CreateAccount(ctx context.Context, arg sqlc.CreateAccountParams) (sqlc.Account, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "CreateAccount", ctx, arg)
-	ret0, _ := ret[0].(db.Account)
+	ret0, _ := ret[0].(sqlc.Account)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -71,10 +71,10 @@ func (mr *MockStoreMockRecorder) DeleteAccount(ctx, id any) *gomock.Call {
 }
 
 // GetAccount mocks base method.
-func (m *MockStore) GetAccount(ctx context.Context, id int64) (db.Account, error) {
+func (m *MockStore) GetAccount(ctx context.Context, id int64) (sqlc.Account, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetAccount", ctx, id)
-	ret0, _ := ret[0].(db.Account)
+	ret0, _ := ret[0].(sqlc.Account)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -85,11 +85,26 @@ func (mr *MockStoreMockRecorder) GetAccount(ctx, id any) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAccount", reflect.TypeOf((*MockStore)(nil).GetAccount), ctx, id)
 }
 
+// GetAccountByEmail mocks base method.
+func (m *MockStore) GetAccountByEmail(ctx context.Context, email string) (sqlc.Account, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetAccountByEmail", ctx, email)
+	ret0, _ := ret[0].(sqlc.Account)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetAccountByEmail indicates an expected call of GetAccountByEmail.
+func (mr *MockStoreMockRecorder) GetAccountByEmail(ctx, email any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAccountByEmail", reflect.TypeOf((*MockStore)(nil).GetAccountByEmail), ctx, email)
+}
+
 // UpdateAccount mocks base method.
-func (m *MockStore) UpdateAccount(ctx context.Context, arg db.UpdateAccountParams) (db.Account, error) {
+func (m *MockStore) UpdateAccount(ctx context.Context, arg sqlc.UpdateAccountParams) (sqlc.Account, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "UpdateAccount", ctx, arg)
-	ret0, _ := ret[0].(db.Account)
+	ret0, _ := ret[0].(sqlc.Account)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -101,10 +116,10 @@ func (mr *MockStoreMockRecorder) UpdateAccount(ctx, arg any) *gomock.Call {
 }
 
 // VerifyAccount mocks base method.
-func (m *MockStore) VerifyAccount(ctx context.Context, id int64) (db.Account, error) {
+func (m *MockStore) VerifyAccount(ctx context.Context, id int64) (sqlc.Account, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "VerifyAccount", ctx, id)
-	ret0, _ := ret[0].(db.Account)
+	ret0, _ := ret[0].(sqlc.Account)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
