@@ -37,7 +37,7 @@ func (s *Server) mountRoutes() {
 	router.GET("/health", s.healthCheckHandler)
 
 	router.POST("/sign-up", s.createAccountHandler)
-	router.POST("/sign-in", s.loginAccountHandler)
+	router.POST("/login", s.loginAccountHandler)
 
 	router.GET("/accounts/:id", s.getAccountHandler)
 	router.POST("/verify/:id", s.verifyAccountHandler)
