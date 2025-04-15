@@ -152,6 +152,120 @@ func TestCreateAccountAPI(t *testing.T) {
 	}
 }
 
+func TestLoginAccountAPI(t *testing.T) {
+	args := loginAccountRequest{
+		Email:    util.RandomEmail(),
+		Password: "@Password123",
+	}
+
+	hashedPassword, err := util.HashedPassword("@Password123")
+	require.NoError(t, err)
+
+	account := db.Account{
+		ID:           util.RandomgInt(1, 1000),
+		Email:        args.Email,
+		FullName:     util.RandomString(12),
+		PasswordHash: hashedPassword,
+		CreatedAt: pgtype.Timestamp{
+			Time:  time.Now().UTC(),
+			Valid: true,
+		},
+		UpdatedAt: pgtype.Timestamp{
+			Time:  time.Now().UTC(),
+			Valid: true,
+		},
+		IsVerified: true,
+	}
+
+	testCases := []struct {
+		name          string
+		args          loginAccountRequest
+		buildStubs    func(store *mock_sqlc.MockStore)
+		checkResponse func(t *testing.T, recorder httptest.ResponseRecorder)
+	}{
+		{
+			name: "Ok",
+			args: args,
+			buildStubs: func(store *mock_sqlc.MockStore) {
+				store.
+					EXPECT().
+					GetAccountByEmail(gomock.Any(), gomock.Eq(args.Email)).
+					Times(1).
+					Return(account, nil)
+			},
+			checkResponse: func(t *testing.T, recorder httptest.ResponseRecorder) {
+				require.Equal(t, http.StatusOK, recorder.Code)
+			},
+		},
+		{
+			name: "BadRequest",
+			args: loginAccountRequest{},
+			buildStubs: func(store *mock_sqlc.MockStore) {
+				store.
+					EXPECT().
+					GetAccountByEmail(gomock.Any(), gomock.Any()).
+					Times(0)
+			},
+			checkResponse: func(t *testing.T, recorder httptest.ResponseRecorder) {
+				require.Equal(t, http.StatusBadRequest, recorder.Code)
+			},
+		},
+		{
+			name: "NotFound",
+			args: args,
+			buildStubs: func(store *mock_sqlc.MockStore) {
+				store.
+					EXPECT().
+					GetAccountByEmail(gomock.Any(), gomock.Eq(args.Email)).
+					Times(1).
+					Return(db.Account{}, sql.ErrNoRows)
+			},
+			checkResponse: func(t *testing.T, recorder httptest.ResponseRecorder) {
+				require.Equal(t, http.StatusNotFound, recorder.Code)
+			},
+		},
+		{
+			name: "InternalError",
+			args: args,
+			buildStubs: func(store *mock_sqlc.MockStore) {
+				store.
+					EXPECT().
+					GetAccountByEmail(gomock.Any(), gomock.Eq(args.Email)).
+					Times(1).
+					Return(db.Account{}, sql.ErrConnDone)
+			},
+			checkResponse: func(t *testing.T, recorder httptest.ResponseRecorder) {
+				require.Equal(t, http.StatusInternalServerError, recorder.Code)
+			},
+		},
+	}
+
+	for i := range testCases {
+		tc := testCases[i]
+
+		t.Run(tc.name, func(t *testing.T) {
+			ctrl := gomock.NewController(t)
+			defer ctrl.Finish()
+
+			store := mock_sqlc.NewMockStore(ctrl)
+			tc.buildStubs(store)
+
+			server := newTestingServer(t, store)
+			recorder := httptest.NewRecorder()
+
+			js, err := json.Marshal(tc.args)
+			require.NoError(t, err)
+
+			req, err := http.NewRequest(http.MethodPost, "/login", bytes.NewBuffer(js))
+			require.NoError(t, err)
+
+			server.router.ServeHTTP(recorder, req)
+
+			tc.checkResponse(t, *recorder)
+		})
+	}
+}
+
 func TestGetAccountAPI(t *testing.T) {
 	hashed_password, err := util.HashedPassword("@Password123")
 	require.NoError(t, err)
