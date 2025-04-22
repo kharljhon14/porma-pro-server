@@ -29,7 +29,7 @@ func TestCreateAccountAPI(t *testing.T) {
 	}
 
 	account := db.Account{
-		ID:           util.RandomgInt(1, 1000),
+		ID:           util.RandomInt(1, 1000),
 		Email:        args.Email,
 		PasswordHash: args.Password,
 		FullName:     args.FullName,
@@ -162,7 +162,7 @@ func TestLoginAccountAPI(t *testing.T) {
 	require.NoError(t, err)
 
 	account := db.Account{
-		ID:           util.RandomgInt(1, 1000),
+		ID:           util.RandomInt(1, 1000),
 		Email:        args.Email,
 		FullName:     util.RandomString(12),
 		PasswordHash: hashedPassword,
@@ -271,7 +271,7 @@ func TestGetAccountAPI(t *testing.T) {
 	require.NoError(t, err)
 
 	account := db.Account{
-		ID:           util.RandomgInt(1, 1000),
+		ID:           util.RandomInt(1, 1000),
 		Email:        util.RandomEmail(),
 		PasswordHash: hashed_password,
 		FullName:     util.RandomString(12),
@@ -386,7 +386,7 @@ func TestVerifyAccountAPI(t *testing.T) {
 	require.NoError(t, err)
 
 	account := db.Account{
-		ID:           util.RandomgInt(1, 1000),
+		ID:           util.RandomInt(1, 1000),
 		Email:        util.RandomEmail(),
 		PasswordHash: hashed_password,
 		FullName:     util.RandomString(12),

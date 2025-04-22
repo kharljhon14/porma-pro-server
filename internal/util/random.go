@@ -13,7 +13,7 @@ func init() {
 	rand.NewSource(time.Now().UnixNano())
 }
 
-func RandomgInt(min, max int64) int64 {
+func RandomInt(min, max int64) int64 {
 	return min + rand.Int63n(max-min+1)
 }
 

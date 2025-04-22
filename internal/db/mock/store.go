@@ -86,17 +86,17 @@ func (mr *MockStoreMockRecorder) DeleteAccount(ctx, id any) *gomock.Call {
 }
 
 // DeletePersonalInfo mocks base method.
-func (m *MockStore) DeletePersonalInfo(ctx context.Context, arg sqlc.DeletePersonalInfoParams) error {
+func (m *MockStore) DeletePersonalInfo(ctx context.Context, id int64) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "DeletePersonalInfo", ctx, arg)
+	ret := m.ctrl.Call(m, "DeletePersonalInfo", ctx, id)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // DeletePersonalInfo indicates an expected call of DeletePersonalInfo.
-func (mr *MockStoreMockRecorder) DeletePersonalInfo(ctx, arg any) *gomock.Call {
+func (mr *MockStoreMockRecorder) DeletePersonalInfo(ctx, id any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeletePersonalInfo", reflect.TypeOf((*MockStore)(nil).DeletePersonalInfo), ctx, arg)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeletePersonalInfo", reflect.TypeOf((*MockStore)(nil).DeletePersonalInfo), ctx, id)
 }
 
 // GetAccount mocks base method.
@@ -130,18 +130,18 @@ func (mr *MockStoreMockRecorder) GetAccountByEmail(ctx, email any) *gomock.Call 
 }
 
 // GetPersonalInfo mocks base method.
-func (m *MockStore) GetPersonalInfo(ctx context.Context, arg sqlc.GetPersonalInfoParams) (sqlc.PersonalInfo, error) {
+func (m *MockStore) GetPersonalInfo(ctx context.Context, id int64) (sqlc.PersonalInfo, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetPersonalInfo", ctx, arg)
+	ret := m.ctrl.Call(m, "GetPersonalInfo", ctx, id)
 	ret0, _ := ret[0].(sqlc.PersonalInfo)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // GetPersonalInfo indicates an expected call of GetPersonalInfo.
-func (mr *MockStoreMockRecorder) GetPersonalInfo(ctx, arg any) *gomock.Call {
+func (mr *MockStoreMockRecorder) GetPersonalInfo(ctx, id any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetPersonalInfo", reflect.TypeOf((*MockStore)(nil).GetPersonalInfo), ctx, arg)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetPersonalInfo", reflect.TypeOf((*MockStore)(nil).GetPersonalInfo), ctx, id)
 }
 
 // UpdateAccount mocks base method.

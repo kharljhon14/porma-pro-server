@@ -17,7 +17,7 @@ INSERT INTO personal_infos (
 
 -- name: GetPersonalInfo :one
 SELECT * FROM personal_infos
-WHERE id = $1 AND account_id = $2;
+WHERE id = $1;
 
 -- name: UpdatePersonalInfo :one
 UPDATE personal_infos
@@ -29,9 +29,9 @@ SET full_name = $1,
     country = $6,
     state = $7,
     city = $8
-WHERE id = $9 AND account_id = $10
+WHERE id = $9
 RETURNING *;
 
 -- name: DeletePersonalInfo :exec
 DELETE FROM personal_infos
-WHERE id = $1 AND account_id = $2;
+WHERE id = $1;

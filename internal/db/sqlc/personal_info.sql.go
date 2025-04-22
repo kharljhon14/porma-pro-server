@@ -71,31 +71,21 @@ func (q *Queries) CreatePersonalInfo(ctx context.Context, arg CreatePersonalInfo
 
 const deletePersonalInfo = `-- name: DeletePersonalInfo :exec
 DELETE FROM personal_infos
-WHERE id = $1 AND account_id = $2
+WHERE id = $1
 `
 
-type DeletePersonalInfoParams struct {
-	ID        int64 `json:"id"`
-	AccountID int64 `json:"account_id"`
-}
-
-func (q *Queries) DeletePersonalInfo(ctx context.Context, arg DeletePersonalInfoParams) error {
-	_, err := q.db.Exec(ctx, deletePersonalInfo, arg.ID, arg.AccountID)
+func (q *Queries) DeletePersonalInfo(ctx context.Context, id int64) error {
+	_, err := q.db.Exec(ctx, deletePersonalInfo, id)
 	return err
 }
 
 const getPersonalInfo = `-- name: GetPersonalInfo :one
 SELECT id, account_id, full_name, email, phone_number, linkedin_url, personal_url, country, state, city FROM personal_infos
-WHERE id = $1 AND account_id = $2
+WHERE id = $1
 `
 
-type GetPersonalInfoParams struct {
-	ID        int64 `json:"id"`
-	AccountID int64 `json:"account_id"`
-}
-
-func (q *Queries) GetPersonalInfo(ctx context.Context, arg GetPersonalInfoParams) (PersonalInfo, error) {
-	row := q.db.QueryRow(ctx, getPersonalInfo, arg.ID, arg.AccountID)
+func (q *Queries) GetPersonalInfo(ctx context.Context, id int64) (PersonalInfo, error) {
+	row := q.db.QueryRow(ctx, getPersonalInfo, id)
 	var i PersonalInfo
 	err := row.Scan(
 		&i.ID,
@@ -122,7 +112,7 @@ SET full_name = $1,
     country = $6,
     state = $7,
     city = $8
-WHERE id = $9 AND account_id = $10
+WHERE id = $9
 RETURNING id, account_id, full_name, email, phone_number, linkedin_url, personal_url, country, state, city
 `
 
@@ -136,7 +126,6 @@ type UpdatePersonalInfoParams struct {
 	State       string      `json:"state"`
 	City        string      `json:"city"`
 	ID          int64       `json:"id"`
-	AccountID   int64       `json:"account_id"`
 }
 
 func (q *Queries) UpdatePersonalInfo(ctx context.Context, arg UpdatePersonalInfoParams) (PersonalInfo, error) {
@@ -150,7 +139,6 @@ func (q *Queries) UpdatePersonalInfo(ctx context.Context, arg UpdatePersonalInfo
 		arg.State,
 		arg.City,
 		arg.ID,
-		arg.AccountID,
 	)
 	var i PersonalInfo
 	err := row.Scan(
