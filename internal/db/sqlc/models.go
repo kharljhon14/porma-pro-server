@@ -17,3 +17,16 @@ type Account struct {
 	UpdatedAt    pgtype.Timestamp `json:"updated_at"`
 	IsVerified   bool             `json:"is_verified"`
 }
+
+type PersonalInfo struct {
+	ID          int64       `json:"id"`
+	AccountID   int64       `json:"account_id"`
+	FullName    string      `json:"full_name"`
+	Email       string      `json:"email"`
+	PhoneNumber string      `json:"phone_number"`
+	LinkedinUrl pgtype.Text `json:"linkedin_url"`
+	PersonalUrl pgtype.Text `json:"personal_url"`
+	Country     string      `json:"country"`
+	State       string      `json:"state"`
+	City        string      `json:"city"`
+}

@@ -10,10 +10,14 @@ import (
 
 type Querier interface {
 	CreateAccount(ctx context.Context, arg CreateAccountParams) (Account, error)
+	CreatePersonalInfo(ctx context.Context, arg CreatePersonalInfoParams) (PersonalInfo, error)
 	DeleteAccount(ctx context.Context, id int64) error
+	DeletePersonalInfo(ctx context.Context, arg DeletePersonalInfoParams) error
 	GetAccount(ctx context.Context, id int64) (Account, error)
 	GetAccountByEmail(ctx context.Context, email string) (Account, error)
+	GetPersonalInfo(ctx context.Context, arg GetPersonalInfoParams) (PersonalInfo, error)
 	UpdateAccount(ctx context.Context, arg UpdateAccountParams) (Account, error)
+	UpdatePersonalInfo(ctx context.Context, arg UpdatePersonalInfoParams) (PersonalInfo, error)
 	VerifyAccount(ctx context.Context, id int64) (Account, error)
 }
 

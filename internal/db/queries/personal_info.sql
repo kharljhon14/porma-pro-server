@@ -1,5 +1,5 @@
 -- name: CreatePersonalInfo :one
-INSERT INTO personal_infos(
+INSERT INTO personal_infos (
     account_id,
     full_name,
     email,
@@ -8,7 +8,7 @@ INSERT INTO personal_infos(
     personal_url,
     country,
     state,
-    city,
+    city
 ) VALUES (
  $1, $2, $3,
  $4, $5, $6,
@@ -33,5 +33,5 @@ WHERE id = $9 AND account_id = $10
 RETURNING *;
 
 -- name: DeletePersonalInfo :exec
-DELETE personal_infos
+DELETE FROM personal_infos
 WHERE id = $1 AND account_id = $2;
