@@ -41,6 +41,8 @@ func (s *Server) mountRoutes() {
 
 	router.GET("/accounts/:id", s.getAccountHandler)
 	router.POST("/verify/:id", s.verifyAccountHandler)
+
+	router.POST("/personal-info", s.createPersonalInfoHandler)
 	s.router = router
 }
 
