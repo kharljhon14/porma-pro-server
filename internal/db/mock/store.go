@@ -71,6 +71,21 @@ func (mr *MockStoreMockRecorder) CreatePersonalInfo(ctx, arg any) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreatePersonalInfo", reflect.TypeOf((*MockStore)(nil).CreatePersonalInfo), ctx, arg)
 }
 
+// CreateSummary mocks base method.
+func (m *MockStore) CreateSummary(ctx context.Context, arg sqlc.CreateSummaryParams) (sqlc.Summary, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CreateSummary", ctx, arg)
+	ret0, _ := ret[0].(sqlc.Summary)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// CreateSummary indicates an expected call of CreateSummary.
+func (mr *MockStoreMockRecorder) CreateSummary(ctx, arg any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateSummary", reflect.TypeOf((*MockStore)(nil).CreateSummary), ctx, arg)
+}
+
 // DeleteAccount mocks base method.
 func (m *MockStore) DeleteAccount(ctx context.Context, id int64) error {
 	m.ctrl.T.Helper()
@@ -97,6 +112,20 @@ func (m *MockStore) DeletePersonalInfo(ctx context.Context, id int64) error {
 func (mr *MockStoreMockRecorder) DeletePersonalInfo(ctx, id any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeletePersonalInfo", reflect.TypeOf((*MockStore)(nil).DeletePersonalInfo), ctx, id)
+}
+
+// DeleteSummary mocks base method.
+func (m *MockStore) DeleteSummary(ctx context.Context, id int64) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "DeleteSummary", ctx, id)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// DeleteSummary indicates an expected call of DeleteSummary.
+func (mr *MockStoreMockRecorder) DeleteSummary(ctx, id any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteSummary", reflect.TypeOf((*MockStore)(nil).DeleteSummary), ctx, id)
 }
 
 // GetAccount mocks base method.
@@ -144,6 +173,21 @@ func (mr *MockStoreMockRecorder) GetPersonalInfo(ctx, id any) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetPersonalInfo", reflect.TypeOf((*MockStore)(nil).GetPersonalInfo), ctx, id)
 }
 
+// GetSummary mocks base method.
+func (m *MockStore) GetSummary(ctx context.Context, id int64) (sqlc.Summary, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetSummary", ctx, id)
+	ret0, _ := ret[0].(sqlc.Summary)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetSummary indicates an expected call of GetSummary.
+func (mr *MockStoreMockRecorder) GetSummary(ctx, id any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetSummary", reflect.TypeOf((*MockStore)(nil).GetSummary), ctx, id)
+}
+
 // UpdateAccount mocks base method.
 func (m *MockStore) UpdateAccount(ctx context.Context, arg sqlc.UpdateAccountParams) (sqlc.Account, error) {
 	m.ctrl.T.Helper()
@@ -172,6 +216,21 @@ func (m *MockStore) UpdatePersonalInfo(ctx context.Context, arg sqlc.UpdatePerso
 func (mr *MockStoreMockRecorder) UpdatePersonalInfo(ctx, arg any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdatePersonalInfo", reflect.TypeOf((*MockStore)(nil).UpdatePersonalInfo), ctx, arg)
+}
+
+// UpdateSummary mocks base method.
+func (m *MockStore) UpdateSummary(ctx context.Context, arg sqlc.UpdateSummaryParams) (sqlc.Summary, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UpdateSummary", ctx, arg)
+	ret0, _ := ret[0].(sqlc.Summary)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// UpdateSummary indicates an expected call of UpdateSummary.
+func (mr *MockStoreMockRecorder) UpdateSummary(ctx, arg any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateSummary", reflect.TypeOf((*MockStore)(nil).UpdateSummary), ctx, arg)
 }
 
 // VerifyAccount mocks base method.

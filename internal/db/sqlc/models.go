@@ -30,3 +30,9 @@ type PersonalInfo struct {
 	State       string      `json:"state"`
 	City        string      `json:"city"`
 }
+
+type Summary struct {
+	ID        int64  `json:"id"`
+	AccountID int64  `json:"account_id"`
+	Summary   string `json:"summary"`
+}
