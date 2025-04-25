@@ -9,15 +9,15 @@ import (
 )
 
 type createPersonalInfoRequest struct {
-	AccountID   int64  `json:"account_id" bindings:"required,min=1"`
-	Email       string `json:"email" bindings:"required,email"`
-	FullName    string `json:"full_name" bindings:"required,max=255"`
-	PhoneNumber string `json:"phone_number" bindings:"required"`
-	LinkedInURL string `json:"linkedin_url" bindings:"max=255"`
-	PersonalURL string `json:"personal_url" bindings:"max=255"`
-	Country     string `json:"country" bindings:"required,max=255"`
-	State       string `json:"state" bindings:"required,max=255"`
-	City        string `json:"city" bindings:"required,max=255"`
+	AccountID   int64  `json:"account_id" binding:"required,min=1"`
+	Email       string `json:"email" binding:"required,email"`
+	FullName    string `json:"full_name" binding:"required,max=255"`
+	PhoneNumber string `json:"phone_number" binding:"required"`
+	LinkedInURL string `json:"linkedin_url" binding:"max=255"`
+	PersonalURL string `json:"personal_url" binding:"max=255"`
+	Country     string `json:"country" binding:"required,max=255"`
+	State       string `json:"state" binding:"required,max=255"`
+	City        string `json:"city" binding:"required,max=255"`
 }
 
 func (s *Server) createPersonalInfoHandler(ctx *gin.Context) {

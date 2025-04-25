@@ -29,7 +29,7 @@ func TestCreatePersonalInfo(t *testing.T) {
 	}
 
 	peronsalInfo := db.PersonalInfo{
-		ID:          1,
+		ID:          util.RandomInt(1, 1000),
 		AccountID:   args.AccountID,
 		FullName:    args.FullName,
 		Email:       args.Email,
@@ -70,11 +70,14 @@ func TestCreatePersonalInfo(t *testing.T) {
 		},
 		{
 			name: "BadRequest",
-			args: createPersonalInfoRequest{},
+			args: createPersonalInfoRequest{
+				AccountID: 0,
+				Email:     "invalid",
+			},
 			buildStubs: func(store *mock_sqlc.MockStore) {
 				store.
 					EXPECT().
-					CreatePersonalInfo(gomock.Any(), gomock.Eq(createAccountRequest{})).
+					CreatePersonalInfo(gomock.Any(), gomock.Any()).
 					Times(0)
 			},
 			checkResponse: func(t *testing.T, recorder *httptest.ResponseRecorder) {
@@ -87,9 +90,9 @@ func TestCreatePersonalInfo(t *testing.T) {
 			buildStubs: func(store *mock_sqlc.MockStore) {
 				store.
 					EXPECT().
-					CreateAccount(gomock.Any(), gomock.Any()).
+					CreatePersonalInfo(gomock.Any(), gomock.Any()).
 					Times(1).
-					Return(db.Account{}, sql.ErrConnDone)
+					Return(db.PersonalInfo{}, sql.ErrConnDone)
 			},
 			checkResponse: func(t *testing.T, recorder *httptest.ResponseRecorder) {
 				require.Equal(t, http.StatusInternalServerError, recorder.Code)
