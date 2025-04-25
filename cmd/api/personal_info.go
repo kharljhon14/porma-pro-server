@@ -1,6 +1,8 @@
 package api
 
 import (
+	"database/sql"
+	"errors"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -54,4 +56,31 @@ func (s *Server) createPersonalInfoHandler(ctx *gin.Context) {
 	}
 
 	ctx.JSON(http.StatusCreated, personalInfo)
+}
+
+type getPersonalInfoRequest struct {
+	ID int64 `uri:"id" binding:"required,min=1"`
+}
+
+func (s *Server) getPersonalInfoHandler(ctx *gin.Context) {
+	var req getPersonalInfoRequest
+
+	err := ctx.ShouldBindUri(&req)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		return
+	}
+
+	personalInfo, err := s.store.GetPersonalInfo(ctx, req.ID)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			ctx.JSON(http.StatusNotFound, errorResponse(err))
+			return
+		}
+
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
+	}
+
+	ctx.JSON(http.StatusOK, personalInfo)
 }

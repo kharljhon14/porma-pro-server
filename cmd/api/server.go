@@ -43,6 +43,7 @@ func (s *Server) mountRoutes() {
 	router.POST("/verify/:id", s.verifyAccountHandler)
 
 	router.POST("/personal-info", s.createPersonalInfoHandler)
+	router.GET("/personal-info/:id", s.getPersonalInfoHandler)
 	s.router = router
 }
 

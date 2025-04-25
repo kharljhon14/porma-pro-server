@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"database/sql"
 	"encoding/json"
+	"fmt"
 	"io"
 	"net/http"
 	"net/http/httptest"
@@ -121,6 +122,114 @@ func TestCreatePersonalInfo(t *testing.T) {
 
 			server.router.ServeHTTP(recorder, req)
 
+			tc.checkResponse(t, recorder)
+		})
+	}
+}
+
+func TestGetPersonalInfo(t *testing.T) {
+	personalInfo := db.PersonalInfo{
+		ID:          1,
+		AccountID:   1,
+		FullName:    util.RandomString(12),
+		Email:       util.RandomEmail(),
+		PhoneNumber: "+639456543438",
+		Country:     "Philippines",
+		State:       "Bataan",
+		City:        "Orion",
+	}
+
+	testCases := []struct {
+		name          string
+		args          int64
+		buildStubs    func(store *mock_sqlc.MockStore)
+		checkResponse func(t *testing.T, recorder *httptest.ResponseRecorder)
+	}{
+		{
+			name: "Ok",
+			args: personalInfo.ID,
+			buildStubs: func(store *mock_sqlc.MockStore) {
+				store.
+					EXPECT().
+					GetPersonalInfo(gomock.Any(), gomock.Eq(personalInfo.ID)).
+					Times(1).
+					Return(personalInfo, nil)
+			},
+			checkResponse: func(t *testing.T, recorder *httptest.ResponseRecorder) {
+				require.Equal(t, http.StatusOK, recorder.Code)
+
+				data, err := io.ReadAll(recorder.Body)
+				require.NoError(t, err)
+
+				var gotPersonalInfo db.PersonalInfo
+				err = json.Unmarshal(data, &gotPersonalInfo)
+				require.NoError(t, err)
+
+				require.Equal(t, personalInfo, gotPersonalInfo)
+			},
+		},
+		{
+			name: "BadRequest",
+			args: 0,
+			buildStubs: func(store *mock_sqlc.MockStore) {
+				store.
+					EXPECT().
+					GetPersonalInfo(gomock.Any(), gomock.Any()).
+					Times(0)
+			},
+			checkResponse: func(t *testing.T, recorder *httptest.ResponseRecorder) {
+				require.Equal(t, http.StatusBadRequest, recorder.Code)
+			},
+		},
+		{
+			name: "NotFound",
+			args: personalInfo.ID,
+			buildStubs: func(store *mock_sqlc.MockStore) {
+				store.
+					EXPECT().
+					GetPersonalInfo(gomock.Any(), gomock.Eq(personalInfo.ID)).
+					Times(1).
+					Return(db.PersonalInfo{}, sql.ErrNoRows)
+			},
+			checkResponse: func(t *testing.T, recorder *httptest.ResponseRecorder) {
+				require.Equal(t, http.StatusNotFound, recorder.Code)
+			},
+		},
+		{
+			name: "InternalError",
+			args: personalInfo.ID,
+			buildStubs: func(store *mock_sqlc.MockStore) {
+				store.
+					EXPECT().
+					GetPersonalInfo(gomock.Any(), gomock.Eq(personalInfo.ID)).
+					Times(1).
+					Return(db.PersonalInfo{}, sql.ErrConnDone)
+			},
+			checkResponse: func(t *testing.T, recorder *httptest.ResponseRecorder) {
+				require.Equal(t, http.StatusInternalServerError, recorder.Code)
+			},
+		},
+	}
+
+	for i := range testCases {
+		tc := testCases[i]
+
+		t.Run(tc.name, func(t *testing.T) {
+			ctrl := gomock.NewController(t)
+			defer ctrl.Finish()
+
+			store := mock_sqlc.NewMockStore(ctrl)
+			tc.buildStubs(store)
+
+			server := newTestingServer(t, store)
+
+			url := fmt.Sprintf(`/personal-info/%d`, tc.args)
+
+			recorder := httptest.NewRecorder()
+			req, err := http.NewRequest(http.MethodGet, url, nil)
+			require.NoError(t, err)
+
+			server.router.ServeHTTP(recorder, req)
 			tc.checkResponse(t, recorder)
 		})
 	}
