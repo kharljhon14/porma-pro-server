@@ -45,4 +45,3 @@ ehthumbs.db
 docker-compose.yaml
 
 Makefile
-internal/db/migration
