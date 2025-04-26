@@ -17,7 +17,6 @@
 
 # Go module cache
 /pkg/mod/
-/go.sum
 
 # IDE/editor stuff
 .vscode/
