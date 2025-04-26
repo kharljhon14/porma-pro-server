@@ -43,5 +43,3 @@ ehthumbs.db
 
 # docker
 docker-compose.yaml
-
-Makefile
