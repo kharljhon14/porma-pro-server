@@ -86,6 +86,21 @@ func (mr *MockStoreMockRecorder) CreateSummary(ctx, arg any) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateSummary", reflect.TypeOf((*MockStore)(nil).CreateSummary), ctx, arg)
 }
 
+// CreateWorkExperience mocks base method.
+func (m *MockStore) CreateWorkExperience(ctx context.Context, arg sqlc.CreateWorkExperienceParams) (sqlc.WorkExperience, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CreateWorkExperience", ctx, arg)
+	ret0, _ := ret[0].(sqlc.WorkExperience)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// CreateWorkExperience indicates an expected call of CreateWorkExperience.
+func (mr *MockStoreMockRecorder) CreateWorkExperience(ctx, arg any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateWorkExperience", reflect.TypeOf((*MockStore)(nil).CreateWorkExperience), ctx, arg)
+}
+
 // DeleteAccount mocks base method.
 func (m *MockStore) DeleteAccount(ctx context.Context, id int64) error {
 	m.ctrl.T.Helper()
@@ -126,6 +141,20 @@ func (m *MockStore) DeleteSummary(ctx context.Context, id int64) error {
 func (mr *MockStoreMockRecorder) DeleteSummary(ctx, id any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteSummary", reflect.TypeOf((*MockStore)(nil).DeleteSummary), ctx, id)
+}
+
+// DeleteWorkExperience mocks base method.
+func (m *MockStore) DeleteWorkExperience(ctx context.Context, id int64) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "DeleteWorkExperience", ctx, id)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// DeleteWorkExperience indicates an expected call of DeleteWorkExperience.
+func (mr *MockStoreMockRecorder) DeleteWorkExperience(ctx, id any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteWorkExperience", reflect.TypeOf((*MockStore)(nil).DeleteWorkExperience), ctx, id)
 }
 
 // GetAccount mocks base method.
@@ -188,6 +217,36 @@ func (mr *MockStoreMockRecorder) GetSummary(ctx, id any) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetSummary", reflect.TypeOf((*MockStore)(nil).GetSummary), ctx, id)
 }
 
+// GetWorkExperience mocks base method.
+func (m *MockStore) GetWorkExperience(ctx context.Context, id int64) (sqlc.WorkExperience, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetWorkExperience", ctx, id)
+	ret0, _ := ret[0].(sqlc.WorkExperience)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetWorkExperience indicates an expected call of GetWorkExperience.
+func (mr *MockStoreMockRecorder) GetWorkExperience(ctx, id any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetWorkExperience", reflect.TypeOf((*MockStore)(nil).GetWorkExperience), ctx, id)
+}
+
+// GetWorkExperiences mocks base method.
+func (m *MockStore) GetWorkExperiences(ctx context.Context, accountID int64) ([]sqlc.WorkExperience, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetWorkExperiences", ctx, accountID)
+	ret0, _ := ret[0].([]sqlc.WorkExperience)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetWorkExperiences indicates an expected call of GetWorkExperiences.
+func (mr *MockStoreMockRecorder) GetWorkExperiences(ctx, accountID any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetWorkExperiences", reflect.TypeOf((*MockStore)(nil).GetWorkExperiences), ctx, accountID)
+}
+
 // UpdateAccount mocks base method.
 func (m *MockStore) UpdateAccount(ctx context.Context, arg sqlc.UpdateAccountParams) (sqlc.Account, error) {
 	m.ctrl.T.Helper()
@@ -231,6 +290,21 @@ func (m *MockStore) UpdateSummary(ctx context.Context, arg sqlc.UpdateSummaryPar
 func (mr *MockStoreMockRecorder) UpdateSummary(ctx, arg any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateSummary", reflect.TypeOf((*MockStore)(nil).UpdateSummary), ctx, arg)
+}
+
+// UpdateWorkExperience mocks base method.
+func (m *MockStore) UpdateWorkExperience(ctx context.Context, arg sqlc.UpdateWorkExperienceParams) (sqlc.WorkExperience, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UpdateWorkExperience", ctx, arg)
+	ret0, _ := ret[0].(sqlc.WorkExperience)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// UpdateWorkExperience indicates an expected call of UpdateWorkExperience.
+func (mr *MockStoreMockRecorder) UpdateWorkExperience(ctx, arg any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateWorkExperience", reflect.TypeOf((*MockStore)(nil).UpdateWorkExperience), ctx, arg)
 }
 
 // VerifyAccount mocks base method.

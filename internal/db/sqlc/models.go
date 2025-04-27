@@ -36,3 +36,14 @@ type Summary struct {
 	AccountID int64  `json:"account_id"`
 	Summary   string `json:"summary"`
 }
+
+type WorkExperience struct {
+	ID        int64            `json:"id"`
+	AccountID int64            `json:"account_id"`
+	Role      string           `json:"role"`
+	Company   string           `json:"company"`
+	Location  string           `json:"location"`
+	Summary   string           `json:"summary"`
+	StartDate pgtype.Timestamp `json:"start_date"`
+	EndDate   pgtype.Timestamp `json:"end_date"`
+}
