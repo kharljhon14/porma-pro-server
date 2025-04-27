@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"database/sql"
 	"encoding/json"
+	"fmt"
 	"io"
 	"net/http"
 	"net/http/httptest"
@@ -115,6 +116,99 @@ func TestCreateSummary(t *testing.T) {
 			require.NoError(t, err)
 
 			request, err := http.NewRequest(http.MethodPost, "/summary", bytes.NewBuffer(js))
+			require.NoError(t, err)
+
+			server.router.ServeHTTP(recorder, request)
+
+			tc.checkResponse(t, recorder)
+		})
+	}
+}
+
+func TestGetSummary(t *testing.T) {
+	id := int64(1)
+
+	summary := db.Summary{
+		ID:        id,
+		AccountID: 1,
+		Summary:   util.RandomString(2000),
+	}
+
+	testCases := []struct {
+		name          string
+		id            int64
+		buildStubs    func(store *mock_sqlc.MockStore)
+		checkResponse func(t *testing.T, recorder *httptest.ResponseRecorder)
+	}{
+		{
+			name: "Ok",
+			id:   id,
+			buildStubs: func(store *mock_sqlc.MockStore) {
+				store.
+					EXPECT().
+					GetSummary(gomock.Any(), gomock.Eq(id)).
+					Times(1).
+					Return(summary, nil)
+			},
+			checkResponse: func(t *testing.T, recorder *httptest.ResponseRecorder) {
+				require.Equal(t, http.StatusOK, recorder.Code)
+
+				data, err := io.ReadAll(recorder.Body)
+				require.NoError(t, err)
+
+				var gotSummary db.Summary
+				err = json.Unmarshal(data, &gotSummary)
+				require.NoError(t, err)
+
+				require.NotEmpty(t, gotSummary)
+				require.Equal(t, summary, gotSummary)
+			},
+		},
+		{
+			name: "BadRequest",
+			id:   0,
+			buildStubs: func(store *mock_sqlc.MockStore) {
+				store.
+					EXPECT().
+					GetSummary(gomock.Any(), gomock.Eq(0)).
+					Times(0)
+			},
+			checkResponse: func(t *testing.T, recorder *httptest.ResponseRecorder) {
+				require.Equal(t, http.StatusBadRequest, recorder.Code)
+			},
+		},
+		{
+			name: "InternalError",
+			id:   id,
+			buildStubs: func(store *mock_sqlc.MockStore) {
+				store.
+					EXPECT().
+					GetSummary(gomock.Any(), gomock.Eq(id)).
+					Times(1).
+					Return(db.Summary{}, sql.ErrConnDone)
+			},
+			checkResponse: func(t *testing.T, recorder *httptest.ResponseRecorder) {
+				require.Equal(t, http.StatusInternalServerError, recorder.Code)
+			},
+		},
+	}
+
+	for i := range testCases {
+		tc := testCases[i]
+
+		t.Run(tc.name, func(t *testing.T) {
+			ctrl := gomock.NewController(t)
+			defer ctrl.Finish()
+
+			store := mock_sqlc.NewMockStore(ctrl)
+			tc.buildStubs(store)
+
+			server := newTestingServer(t, store)
+
+			recorder := httptest.NewRecorder()
+
+			url := fmt.Sprintf("/summary/%d", tc.id)
+			request, err := http.NewRequest(http.MethodGet, url, nil)
 			require.NoError(t, err)
 
 			server.router.ServeHTTP(recorder, request)
