@@ -3,7 +3,6 @@ package db
 import (
 	"context"
 	"database/sql"
-	"fmt"
 	"testing"
 	"time"
 
@@ -67,7 +66,7 @@ func TestGetAccountByEmail(t *testing.T) {
 	require.WithinDuration(t, account.CreatedAt.Time, account2.CreatedAt.Time, time.Second)
 }
 
-func TestUpdateAccont(t *testing.T) {
+func TestUpdateAccount(t *testing.T) {
 	account := createTestAccount(t)
 
 	args := UpdateAccountParams{
@@ -86,7 +85,7 @@ func TestUpdateAccont(t *testing.T) {
 	require.WithinDuration(t, args.UpdatedAt.Time, account2.UpdatedAt.Time, time.Second)
 }
 
-func TestVeifyAccount(t *testing.T) {
+func TestVerifyAccount(t *testing.T) {
 	account := createTestAccount(t)
 
 	account2, err := testStore.VerifyAccount(context.Background(), account.ID)
@@ -103,7 +102,7 @@ func TestDeleteAccount(t *testing.T) {
 
 	account2, err := testStore.GetAccount(context.Background(), account.ID)
 	require.Error(t, err)
-	errorMessage := fmt.Errorf("sql: %s", err)
-	require.EqualError(t, errorMessage, sql.ErrNoRows.Error())
+
+	require.ErrorIs(t, err, sql.ErrNoRows)
 	require.Empty(t, account2)
 }
