@@ -142,3 +142,21 @@ func (s *Server) updatePersonalInfoHandler(ctx *gin.Context) {
 
 	ctx.JSON(http.StatusOK, personalInfo)
 }
+
+func (s *Server) deletePersonalInfoHandler(ctx *gin.Context) {
+	var req updatePersonalInfoURI
+
+	err := ctx.ShouldBindUri(&req)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		return
+	}
+
+	err = s.store.DeletePersonalInfo(ctx, req.ID)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
+	}
+
+	ctx.JSON(http.StatusOK, nil)
+}

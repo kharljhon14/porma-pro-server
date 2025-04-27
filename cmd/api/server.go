@@ -45,6 +45,7 @@ func (s *Server) mountRoutes() {
 	router.POST("/personal-info", s.createPersonalInfoHandler)
 	router.GET("/personal-info/:id", s.getPersonalInfoHandler)
 	router.PATCH("/personal-info/:id", s.updatePersonalInfoHandler)
+	router.DELETE("/personal-info/:id", s.deletePersonalInfoHandler)
 	s.router = router
 }
 

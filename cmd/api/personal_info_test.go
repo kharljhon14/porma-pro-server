@@ -357,3 +357,79 @@ func TestUpdatePersonalInfo(t *testing.T) {
 		})
 	}
 }
+
+func TestDeletePersonalInfo(t *testing.T) {
+	accountID := int64(1)
+	testCases := []struct {
+		name          string
+		accountID     int64
+		buildStubs    func(store *mock_sqlc.MockStore)
+		checkResponse func(t *testing.T, recorder *httptest.ResponseRecorder)
+	}{
+		{
+			name:      "Ok",
+			accountID: accountID,
+			buildStubs: func(store *mock_sqlc.MockStore) {
+				store.
+					EXPECT().
+					DeletePersonalInfo(gomock.Any(), gomock.Eq(accountID)).
+					Times(1).
+					Return(nil)
+			},
+			checkResponse: func(t *testing.T, recorder *httptest.ResponseRecorder) {
+				require.Equal(t, http.StatusOK, recorder.Code)
+			},
+		},
+		{
+			name:      "BadRequest",
+			accountID: 0,
+			buildStubs: func(store *mock_sqlc.MockStore) {
+				store.
+					EXPECT().
+					DeletePersonalInfo(gomock.Any(), gomock.Any()).
+					Times(0)
+			},
+			checkResponse: func(t *testing.T, recorder *httptest.ResponseRecorder) {
+				require.Equal(t, http.StatusBadRequest, recorder.Code)
+			},
+		},
+		{
+			name:      "InternalError",
+			accountID: 1,
+			buildStubs: func(store *mock_sqlc.MockStore) {
+				store.
+					EXPECT().
+					DeletePersonalInfo(gomock.Any(), gomock.Any()).
+					Times(1).
+					Return(sql.ErrConnDone)
+			},
+			checkResponse: func(t *testing.T, recorder *httptest.ResponseRecorder) {
+				require.Equal(t, http.StatusInternalServerError, recorder.Code)
+			},
+		},
+	}
+
+	for i := range testCases {
+		tc := testCases[i]
+
+		t.Run(tc.name, func(t *testing.T) {
+			ctrl := gomock.NewController(t)
+			defer ctrl.Finish()
+
+			store := mock_sqlc.NewMockStore(ctrl)
+			tc.buildStubs(store)
+
+			server := newTestingServer(t, store)
+
+			recorder := httptest.NewRecorder()
+
+			url := fmt.Sprintf("/personal-info/%d", tc.accountID)
+			request, err := http.NewRequest(http.MethodDelete, url, nil)
+			require.NoError(t, err)
+
+			server.router.ServeHTTP(recorder, request)
+
+			tc.checkResponse(t, recorder)
+		})
+	}
+}
