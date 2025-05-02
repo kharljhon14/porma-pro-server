@@ -113,8 +113,58 @@ func (s *Server) getWorkExperienceListHandler(ctx *gin.Context) {
 
 }
 
+type updateWorkExperienceRequest struct {
+	Role      string    `json:"role" binding:"required,max=255"`
+	Company   string    `json:"company" binding:"required,max=255"`
+	Location  string    `json:"location" binding:"required,max=255"`
+	Summary   string    `json:"summary" binding:"required,max=255"`
+	StartDate time.Time `json:"start_date" binding:"required"`
+	EndDate   time.Time `json:"end_date"`
+}
+
 func (s *Server) updateWorkExperienceHandler(ctx *gin.Context) {
 
+	var uri workExperienceURI
+
+	err := ctx.ShouldBindUri(&uri)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		return
+	}
+
+	var req updateWorkExperienceRequest
+
+	err = ctx.ShouldBindBodyWithJSON(&req)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		return
+	}
+
+	args := db.UpdateWorkExperienceParams{
+		Role:     req.Role,
+		Company:  req.Company,
+		Location: req.Location,
+		Summary:  req.Summary,
+		StartDate: pgtype.Timestamp{
+			Time:  req.StartDate,
+			Valid: true,
+		},
+	}
+
+	if !req.EndDate.IsZero() {
+		args.EndDate = pgtype.Timestamp{
+			Time:  req.EndDate,
+			Valid: true,
+		}
+	}
+
+	workExperience, err := s.store.UpdateWorkExperience(ctx, args)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
+	}
+
+	ctx.JSON(http.StatusOK, workExperience)
 }
 
 func (s *Server) deleteWorkExperienceHandler(ctx *gin.Context) {
