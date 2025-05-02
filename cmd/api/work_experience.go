@@ -83,10 +83,33 @@ func (s *Server) getWorkExperienceHandler(ctx *gin.Context) {
 	}
 
 	ctx.JSON(http.StatusOK, workExperience)
+}
 
+type workExperienceQuery struct {
+	AccountID int64 `form:"account_id" binding:"required,min=1"`
 }
 
 func (s *Server) getWorkExperienceListHandler(ctx *gin.Context) {
+	var req workExperienceQuery
+
+	err := ctx.ShouldBindQuery(&req)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		return
+	}
+
+	workExperienceList, err := s.store.GetWorkExperiences(ctx, req.AccountID)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			ctx.JSON(http.StatusNotFound, errorResponse(err))
+			return
+		}
+
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
+	}
+
+	ctx.JSON(http.StatusOK, workExperienceList)
 
 }
 
