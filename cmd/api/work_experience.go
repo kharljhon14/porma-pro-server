@@ -1,6 +1,8 @@
 package api
 
 import (
+	"database/sql"
+	"errors"
 	"net/http"
 	"time"
 
@@ -56,7 +58,31 @@ func (s *Server) createWorkExperienceHandler(ctx *gin.Context) {
 	ctx.JSON(http.StatusCreated, workExperience)
 }
 
+type workExperienceURI struct {
+	ID int64 `json:"id" binding:"required,min=1"`
+}
+
 func (s *Server) getWorkExperienceHandler(ctx *gin.Context) {
+	var req workExperienceURI
+
+	err := ctx.ShouldBindUri(&req)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		return
+	}
+
+	workExperience, err := s.store.GetWorkExperience(ctx, req.ID)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			ctx.JSON(http.StatusNotFound, errorResponse(err))
+			return
+		}
+
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
+	}
+
+	ctx.JSON(http.StatusOK, workExperience)
 
 }
 
