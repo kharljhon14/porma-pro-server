@@ -51,6 +51,13 @@ func (s *Server) mountRoutes() {
 	router.GET("/summary/:id", s.getSummaryHandler)
 	router.PATCH("/summary/:id", s.updateSummaryHandler)
 	router.DELETE("/summary/:id", s.deleteSummaryHandler)
+
+	router.POST("/work-experience", s.createWorkExperienceHandler)
+	router.GET("/work-experience/", s.getWorkExperienceListHandler)
+	router.GET("/work-experience/:id", s.getWorkExperienceHandler)
+	router.PATCH("/work-experience/:id", s.updateWorkExperienceHandler)
+	router.DELETE("/work-experience/:id", s.deleteWorkExperienceHandler)
+
 	s.router = router
 }
 
