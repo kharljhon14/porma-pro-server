@@ -168,5 +168,19 @@ func (s *Server) updateWorkExperienceHandler(ctx *gin.Context) {
 }
 
 func (s *Server) deleteWorkExperienceHandler(ctx *gin.Context) {
+	var req workExperienceURI
 
+	err := ctx.ShouldBindUri(&req)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		return
+	}
+
+	err = s.store.DeleteWorkExperience(ctx, req.ID)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
+	}
+
+	ctx.JSON(http.StatusOK, nil)
 }
