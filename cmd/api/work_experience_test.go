@@ -571,3 +571,82 @@ func TestUpdateWorkExperience(t *testing.T) {
 		})
 	}
 }
+
+func TestDeleteWorkExperience(t *testing.T) {
+	id := int64(1)
+
+	testCases := []struct {
+		name          string
+		id            int64
+		buildStubs    func(store *mock_db.MockStore)
+		checkResponse func(t *testing.T, recorder *httptest.ResponseRecorder)
+	}{
+		{
+			name: "Ok",
+			id:   id,
+			buildStubs: func(store *mock_db.MockStore) {
+				store.
+					EXPECT().
+					DeleteWorkExperience(gomock.Any(), gomock.Eq(id)).
+					Times(1).
+					Return(nil)
+			},
+			checkResponse: func(t *testing.T, recorder *httptest.ResponseRecorder) {
+				require.Equal(t, http.StatusOK, recorder.Code)
+			},
+		},
+		{
+			name: "BadRequest",
+			id:   0,
+			buildStubs: func(store *mock_db.MockStore) {
+				store.
+					EXPECT().
+					DeleteWorkExperience(gomock.Any(), gomock.Eq(0)).
+					Times(0)
+			},
+			checkResponse: func(t *testing.T, recorder *httptest.ResponseRecorder) {
+				require.Equal(t, http.StatusBadRequest, recorder.Code)
+			},
+		},
+		{
+			name: "InternalError",
+			id:   id,
+			buildStubs: func(store *mock_db.MockStore) {
+				store.
+					EXPECT().
+					DeleteWorkExperience(gomock.Any(), gomock.Eq(id)).
+					Times(1).
+					Return(sql.ErrConnDone)
+			},
+			checkResponse: func(t *testing.T, recorder *httptest.ResponseRecorder) {
+				require.Equal(t, http.StatusInternalServerError, recorder.Code)
+			},
+		},
+	}
+
+	for i := range testCases {
+		tc := testCases[i]
+
+		t.Run(tc.name, func(t *testing.T) {
+			ctrl := gomock.NewController(t)
+			defer ctrl.Finish()
+
+			store := mock_db.NewMockStore(ctrl)
+			tc.buildStubs(store)
+
+			server := newTestingServer(t, store)
+
+			recorder := httptest.NewRecorder()
+
+			url := fmt.Sprintf("/work-experience/%d", tc.id)
+
+			request, err := http.NewRequest(http.MethodDelete, url, nil)
+			require.NoError(t, err)
+
+			server.router.ServeHTTP(recorder, request)
+
+			tc.checkResponse(t, recorder)
+
+		})
+	}
+}
