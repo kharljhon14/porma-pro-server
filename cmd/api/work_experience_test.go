@@ -283,3 +283,142 @@ func TestGetWorkExperience(t *testing.T) {
 	}
 
 }
+
+func TestGetWorkExperienceList(t *testing.T) {
+
+	id := int64(1)
+
+	workExperiences := []db.WorkExperience{
+		{
+			ID:        1,
+			AccountID: id,
+			Role:      "Dev",
+			Company:   "Test",
+			Location:  "Bataan",
+			Summary:   util.RandomString(12),
+			StartDate: pgtype.Timestamp{
+				Valid: true,
+				Time:  time.Date(2024, time.April, 2, 0, 0, 0, 0, time.UTC),
+			},
+			EndDate: pgtype.Timestamp{
+				Valid: true,
+				Time:  time.Date(2025, time.April, 2, 0, 0, 0, 0, time.UTC),
+			},
+		},
+		{
+			ID:        2,
+			AccountID: id,
+			Role:      "Dev2",
+			Company:   "Test2",
+			Location:  "Bataan2",
+			Summary:   util.RandomString(12),
+			StartDate: pgtype.Timestamp{
+				Valid: true,
+				Time:  time.Date(2024, time.April, 2, 0, 0, 0, 0, time.UTC),
+			},
+			EndDate: pgtype.Timestamp{
+				Valid: true,
+				Time:  time.Date(2025, time.April, 2, 0, 0, 0, 0, time.UTC),
+			},
+		},
+	}
+
+	testCases := []struct {
+		name          string
+		args          int64
+		buildStubs    func(store *mock_db.MockStore)
+		checkResponse func(t *testing.T, recorder *httptest.ResponseRecorder)
+	}{
+		{
+			name: "Ok",
+			args: id,
+			buildStubs: func(store *mock_db.MockStore) {
+				store.
+					EXPECT().
+					GetWorkExperiences(gomock.Any(), gomock.Eq(id)).
+					Times(1).
+					Return(workExperiences, nil)
+			},
+			checkResponse: func(t *testing.T, recorder *httptest.ResponseRecorder) {
+				require.Equal(t, http.StatusOK, recorder.Code)
+
+				data, err := io.ReadAll(recorder.Body)
+				require.NoError(t, err)
+
+				var gotWorkExperiences []db.WorkExperience
+				err = json.Unmarshal(data, &gotWorkExperiences)
+				require.NoError(t, err)
+
+				require.Equal(t, len(workExperiences), len(gotWorkExperiences))
+				require.Equal(t, workExperiences[0], gotWorkExperiences[0])
+				require.Equal(t, workExperiences[1], gotWorkExperiences[1])
+			},
+		},
+		{
+			name: "BadRequest",
+			args: 0,
+			buildStubs: func(store *mock_db.MockStore) {
+				store.
+					EXPECT().
+					GetWorkExperiences(gomock.Any(), gomock.Eq(0)).
+					Times(0)
+			},
+			checkResponse: func(t *testing.T, recorder *httptest.ResponseRecorder) {
+				require.Equal(t, http.StatusBadRequest, recorder.Code)
+			},
+		},
+		{
+			name: "NotFound",
+			args: id,
+			buildStubs: func(store *mock_db.MockStore) {
+				store.
+					EXPECT().
+					GetWorkExperiences(gomock.Any(), gomock.Eq(id)).
+					Times(1).
+					Return([]db.WorkExperience{}, sql.ErrNoRows)
+			},
+			checkResponse: func(t *testing.T, recorder *httptest.ResponseRecorder) {
+				require.Equal(t, http.StatusNotFound, recorder.Code)
+			},
+		},
+		{
+			name: "InternalError",
+			args: id,
+			buildStubs: func(store *mock_db.MockStore) {
+				store.
+					EXPECT().
+					GetWorkExperiences(gomock.Any(), gomock.Eq(id)).
+					Times(1).
+					Return([]db.WorkExperience{}, sql.ErrConnDone)
+			},
+			checkResponse: func(t *testing.T, recorder *httptest.ResponseRecorder) {
+				require.Equal(t, http.StatusInternalServerError, recorder.Code)
+			},
+		},
+	}
+
+	for i := range testCases {
+		tc := testCases[i]
+
+		t.Run(tc.name, func(t *testing.T) {
+			ctrl := gomock.NewController(t)
+			defer ctrl.Finish()
+
+			store := mock_db.NewMockStore(ctrl)
+			tc.buildStubs(store)
+
+			server := newTestingServer(t, store)
+
+			recorder := httptest.NewRecorder()
+
+			url := fmt.Sprintf("/work-experience/?account_id=%d", tc.args)
+
+			request, err := http.NewRequest(http.MethodGet, url, nil)
+			require.NoError(t, err)
+
+			server.router.ServeHTTP(recorder, request)
+
+			tc.checkResponse(t, recorder)
+		})
+	}
+}
