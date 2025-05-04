@@ -59,7 +59,7 @@ func (s *Server) createWorkExperienceHandler(ctx *gin.Context) {
 }
 
 type workExperienceURI struct {
-	ID int64 `json:"id" binding:"required,min=1"`
+	ID int64 `uri:"id" binding:"required,min=1"`
 }
 
 func (s *Server) getWorkExperienceHandler(ctx *gin.Context) {

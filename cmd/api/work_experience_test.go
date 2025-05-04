@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"database/sql"
 	"encoding/json"
+	"fmt"
 	"io"
 	"net/http"
 	"net/http/httptest"
@@ -159,4 +160,126 @@ func TestCreateWorkExperience(t *testing.T) {
 			tc.checkResponse(t, recorder)
 		})
 	}
+}
+
+func TestGetWorkExperience(t *testing.T) {
+
+	id := int64(1)
+
+	workExperience := db.WorkExperience{
+		ID:        id,
+		AccountID: 1,
+		Role:      "Dev",
+		Company:   "Test",
+		Location:  "Bataan",
+		Summary:   util.RandomString(12),
+		StartDate: pgtype.Timestamp{
+			Valid: true,
+			Time:  time.Date(2024, time.April, 2, 0, 0, 0, 0, time.UTC),
+		},
+		EndDate: pgtype.Timestamp{
+			Valid: true,
+			Time:  time.Date(2025, time.April, 2, 0, 0, 0, 0, time.UTC),
+		},
+	}
+
+	testCases := []struct {
+		name          string
+		args          int64
+		buildStubs    func(store *mock_db.MockStore)
+		checkResponse func(t *testing.T, recorder *httptest.ResponseRecorder)
+	}{
+		{
+			name: "Ok",
+			args: id,
+			buildStubs: func(store *mock_db.MockStore) {
+				store.
+					EXPECT().
+					GetWorkExperience(gomock.Any(), gomock.Eq(id)).
+					Times(1).
+					Return(workExperience, nil)
+			},
+			checkResponse: func(t *testing.T, recorder *httptest.ResponseRecorder) {
+				require.Equal(t, http.StatusOK, recorder.Code)
+
+				data, err := io.ReadAll(recorder.Body)
+				require.NoError(t, err)
+
+				var gotWorkExperience db.WorkExperience
+				err = json.Unmarshal(data, &gotWorkExperience)
+				require.NoError(t, err)
+
+				require.NotEmpty(t, gotWorkExperience)
+				require.Equal(t, workExperience, gotWorkExperience)
+
+			},
+		},
+		{
+			name: "BadRequest",
+			args: 0,
+			buildStubs: func(store *mock_db.MockStore) {
+				store.
+					EXPECT().
+					GetWorkExperience(gomock.Any(), gomock.Eq(0)).
+					Times(0)
+			},
+			checkResponse: func(t *testing.T, recorder *httptest.ResponseRecorder) {
+				require.Equal(t, http.StatusBadRequest, recorder.Code)
+			},
+		},
+		{
+			name: "NotFound",
+			args: id,
+			buildStubs: func(store *mock_db.MockStore) {
+				store.
+					EXPECT().
+					GetWorkExperience(gomock.Any(), gomock.Eq(id)).
+					Times(1).
+					Return(db.WorkExperience{}, sql.ErrNoRows)
+			},
+			checkResponse: func(t *testing.T, recorder *httptest.ResponseRecorder) {
+				require.Equal(t, http.StatusNotFound, recorder.Code)
+			},
+		},
+		{
+			name: "InternalError",
+			args: id,
+			buildStubs: func(store *mock_db.MockStore) {
+				store.
+					EXPECT().
+					GetWorkExperience(gomock.Any(), gomock.Eq(id)).
+					Times(1).
+					Return(db.WorkExperience{}, sql.ErrConnDone)
+			},
+			checkResponse: func(t *testing.T, recorder *httptest.ResponseRecorder) {
+				require.Equal(t, http.StatusInternalServerError, recorder.Code)
+			},
+		},
+	}
+
+	for i := range testCases {
+		tc := testCases[i]
+
+		t.Run(tc.name, func(t *testing.T) {
+			ctrl := gomock.NewController(t)
+			defer ctrl.Finish()
+
+			store := mock_db.NewMockStore(ctrl)
+			tc.buildStubs(store)
+
+			server := newTestingServer(t, store)
+
+			recorder := httptest.NewRecorder()
+
+			url := fmt.Sprintf("/work-experience/%d", tc.args)
+
+			request, err := http.NewRequest(http.MethodGet, url, nil)
+			require.NoError(t, err)
+
+			server.router.ServeHTTP(recorder, request)
+
+			tc.checkResponse(t, recorder)
+		})
+	}
+
 }
