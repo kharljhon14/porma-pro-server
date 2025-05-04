@@ -2,6 +2,7 @@ package api
 
 import (
 	"bytes"
+	"database/sql"
 	"encoding/json"
 	"io"
 	"net/http"
@@ -88,6 +89,47 @@ func TestCreateWorkExperience(t *testing.T) {
 
 				require.NotEmpty(t, gotWorkExperience)
 				require.Equal(t, workExperience, gotWorkExperience)
+			},
+		},
+		{
+			name: "BadRequest",
+			args: createWorkExperienceRequest{},
+			buildStubs: func(store *mock_db.MockStore) {
+				store.
+					EXPECT().
+					CreateWorkExperience(gomock.Any(), gomock.Eq(db.CreateWorkExperienceParams{})).
+					Times(0)
+			},
+			checkResponse: func(t *testing.T, recorder *httptest.ResponseRecorder) {
+				require.Equal(t, http.StatusBadRequest, recorder.Code)
+			},
+		},
+		{
+			name: "InternalError",
+			args: args,
+			buildStubs: func(store *mock_db.MockStore) {
+				store.
+					EXPECT().
+					CreateWorkExperience(gomock.Any(), gomock.Eq(db.CreateWorkExperienceParams{
+						AccountID: args.AccountID,
+						Role:      args.Role,
+						Company:   args.Company,
+						Location:  args.Location,
+						Summary:   args.Summary,
+						StartDate: pgtype.Timestamp{
+							Valid: true,
+							Time:  args.StartDate,
+						},
+						EndDate: pgtype.Timestamp{
+							Valid: true,
+							Time:  args.EndDate,
+						},
+					})).
+					Times(1).
+					Return(db.WorkExperience{}, sql.ErrConnDone)
+			},
+			checkResponse: func(t *testing.T, recorder *httptest.ResponseRecorder) {
+				require.Equal(t, http.StatusInternalServerError, recorder.Code)
 			},
 		},
 	}
