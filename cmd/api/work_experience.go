@@ -141,6 +141,7 @@ func (s *Server) updateWorkExperienceHandler(ctx *gin.Context) {
 	}
 
 	args := db.UpdateWorkExperienceParams{
+		ID:       uri.ID,
 		Role:     req.Role,
 		Company:  req.Company,
 		Location: req.Location,
